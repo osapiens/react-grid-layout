@@ -20,8 +20,6 @@ import {
   withLayoutItem
 } from "./utils";
 
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline"
-import { IconButton } from "@mui/material"
 import { calcXY } from "./calculateUtils";
 
 import GridItem from "./GridItem";
@@ -596,21 +594,7 @@ export default class ReactGridLayout extends React.Component<Props, State> {
         useCSSTransforms={useCSSTransforms}
         transformScale={transformScale}
       >
-    <IconButton
-      sx={{
-        justifyContent: "center",
-        height: "100%",
-        width: "100%",
-        borderRadius: 0,
-        "&:hover": {
-          borderRadius: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.04)",
-        },
-      }}
-      onClick={() => {}}
-    >
-      <AddCircleOutlineIcon sx={{ opacity: 0.5 }} />
-    </IconButton>
+        <div/>
       </GridItem>
     );
   }
