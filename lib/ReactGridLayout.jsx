@@ -253,7 +253,9 @@ export default class ReactGridLayout extends React.Component<Props, State> {
     { e, node }: GridDragEvent
   ) => {
     const { layout } = this.state;
-    const l = getLayoutItem(layout, i);
+    const filteredLayout= layout.filter(
+      (item) => !(item.i.startsWith("placeholder")))
+    const l = getLayoutItem(filteredLayout, i);
     if (!l) return;
     
     // Create placeholder (display only)
@@ -267,12 +269,13 @@ export default class ReactGridLayout extends React.Component<Props, State> {
     };
 
     this.setState({
+      layout: filteredLayout,
       oldDragItem: cloneLayoutItem(l),
-      oldLayout: layout,
+      oldLayout: filteredLayout,
       activeDrag: placeholder
     });
 
-    return this.props.onDragStart(layout, l, l, null, e, node);
+    return this.props.onDragStart(filteredLayout, l, l, null, e, node);
   };
 
   /**
@@ -326,6 +329,16 @@ export default class ReactGridLayout extends React.Component<Props, State> {
     
     const newLayout = compact(layout, compactType(this.props), cols,null,  maxRows);
 
+    if(newLayout && newLayout.some(item => item.y >= maxRows)){
+       this.setState({
+        layout: allowOverlap
+          ? layout
+          : oldLayout,
+        activeDrag: placeholder
+      });
+      return
+    }
+
     this.setState({
       layout: allowOverlap
         ? layout
@@ -374,15 +387,29 @@ export default class ReactGridLayout extends React.Component<Props, State> {
     );
 
     // Set state
-    this.props.onDragStop(layout, oldDragItem, l, null, e, node);
 
     const newLayout = allowOverlap
     ? layout
     : compact(layout, compactType(this.props), cols, null, maxRows);
 
+    if(newLayout && newLayout.some(item => item.y >= maxRows)){
+      this.props.onDragStop(oldLayout, oldDragItem, l, null, e, node);
+      this.setState({
+       layout: allowOverlap
+         ? layout
+         : oldLayout,
+         oldDragItem: null,
+         oldLayout: null,
+         activeDrag: null,
+
+     });
+     return
+   }
+   this.props.onDragStop(newLayout || oldLayout, oldDragItem, l, null, e, node);
+
     this.setState({
       activeDrag: null,
-      layout: newLayout ? newLayout : oldLayout,
+      layout: newLayout || oldLayout,
       oldDragItem: null,
       oldLayout: null
     });
